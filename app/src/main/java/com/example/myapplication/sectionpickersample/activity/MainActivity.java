@@ -66,8 +66,6 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
         // TODO DUMMY
 
 
-
-
         try {
             String jsonData = readJsonFromAssets("cont.json");
             if (jsonData != null) {
@@ -95,47 +93,44 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
                 });
 
 
-
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
 
-
-    // TODO DUMMY END
+        // TODO DUMMY END
 
         adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this);
         recyclerViewCountries.setAdapter(adapter);
     }
 
 
-private String readJsonFromAssets(String fileName) throws IOException {
-    InputStream inputStream = null;
-    StringBuilder stringBuilder = new StringBuilder();
-    try {
-        inputStream = getAssets().open(fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            stringBuilder.append(line);
+    private String readJsonFromAssets(String fileName) throws IOException {
+        InputStream inputStream = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            inputStream = getAssets().open(fileName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
-    } finally {
-        if (inputStream != null) {
-            inputStream.close();
-        }
+        return stringBuilder.toString();
     }
-    return stringBuilder.toString();
-}
 
 
-
-private void initSectionPicker() {
+    private void initSectionPicker() {
         Object[] sectionsAsObject = adapter.getSections();
         String[] sections = Arrays.copyOf(sectionsAsObject, sectionsAsObject.length, String[].class);
 
         sectionPickerCountries.setTextViewIndicator(textViewSection);
-        sectionPickerCountries.setSections(sections);
+//        sectionPickerCountries.setSections(sections);
         sectionPickerCountries.setOnTouchingLetterChangedListener(new SectionPicker.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {

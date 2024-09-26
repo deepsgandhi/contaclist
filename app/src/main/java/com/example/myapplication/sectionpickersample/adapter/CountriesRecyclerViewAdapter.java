@@ -27,8 +27,8 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     public static final int TYPE_COUNTRY = 0;
     public static final int TYPE_LETTER = 1;
 
-    private List<CountriesRecyclerViewModel> countries;
-    private Context context;
+    private final List<CountriesRecyclerViewModel> countries;
+    private final Context context;
     private final RowClickListener rowClickListener;
 
     public CountriesRecyclerViewAdapter(@NonNull List<CountriesRecyclerViewModel> countries, @NonNull Context context, @NonNull RowClickListener rowClickListener) {
@@ -163,15 +163,19 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
     public static class CountryViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewCountry;
+        TextView textViewCountry,despName,firstLetter;
 
         public CountryViewHolder(View itemView) {
             super(itemView);
-            textViewCountry = (TextView) itemView.findViewById(R.id.textview_country);
+            textViewCountry = itemView.findViewById(R.id.textview_country);
+            despName = itemView.findViewById(R.id.despName);
+            firstLetter = itemView.findViewById(R.id.firstLetter);
         }
 
         public void bindTo(@NonNull Country country, @NonNull Context context) {
             textViewCountry.setText(country.getName());
+            despName.setText(country.getName());
+            firstLetter.setText(country.getName().substring(0,1));
 //            textViewCountry.setCompoundDrawablesWithIntrinsicBounds(FlagKit.drawableWithFlag(context, country.getCountryCode().toLowerCase()), null, null, null);
         }
     }
@@ -182,7 +186,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
         public LetterViewHolder(View itemView) {
             super(itemView);
-            textViewLetter = (TextView) itemView.findViewById(R.id.textview_country);
+            textViewLetter = itemView.findViewById(R.id.textview_country);
         }
 
         public void bindTo(@NonNull String letter) {

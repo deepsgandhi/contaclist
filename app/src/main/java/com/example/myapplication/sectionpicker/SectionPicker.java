@@ -21,7 +21,7 @@ import com.example.myapplication.sectionpicker.helper.AttrHelper;
 
 public class SectionPicker extends View {
 
-    public String[] sections = {"A", "B", "C", "D", "E", "F", "G", "H", "I",
+    public String[] sections = {"#","A", "B", "C", "D", "E", "F", "G", "H", "I",
             "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
             "W", "X", "Y", "Z"};
     private TextView textViewIndicator;
