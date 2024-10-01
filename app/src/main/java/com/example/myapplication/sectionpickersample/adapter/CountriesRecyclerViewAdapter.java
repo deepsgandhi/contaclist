@@ -2,6 +2,8 @@ package com.example.myapplication.sectionpickersample.adapter;
 
 import android.content.Context;
 
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     public static final int TYPE_COUNTRY = 0;
     public static final int TYPE_LETTER = 1;
 
+    private final List<CountriesRecyclerViewModel> orieginalList;
     private final List<CountriesRecyclerViewModel> countries;
     private final Context context;
     private final RowClickListener rowClickListener;
@@ -35,6 +38,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         this.countries = countries;
         this.context = context;
         this.rowClickListener = rowClickListener;
+        orieginalList = new ArrayList<>(countries); // Copy the original list
     }
 
     @Override
@@ -69,6 +73,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         CountriesRecyclerViewModel countriesRecyclerViewModel = countries.get(position);
         if (countriesRecyclerViewModel != null) {
+            Log.e("position",""+position);
             switch (getItemViewType(position)) {
                 case TYPE_COUNTRY: {
                     Country country = countriesRecyclerViewModel.getCountry();
@@ -92,7 +97,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
     @Override
     public int getItemViewType(int position) {
-        CountriesRecyclerViewModel country = countries.get(position);
+        CountriesRecyclerViewModel country = orieginalList.get(position);
         if (country != null) {
             return country.getType();
         }
@@ -123,6 +128,20 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                     return i;
                 }
             }
+        }
+
+        return -1;
+    }
+
+    public int getPositionForBloodGroupSection(int sectionIndex) {
+        for (int i = 0, size = countries.size(); i < size; i++) {
+            CountriesRecyclerViewModel countriesRecyclerViewModel = countries.get(i);
+                String sortStr = countriesRecyclerViewModel.getBloodGroup();
+                char firstChar = sortStr.toUpperCase().charAt(0);
+                if (firstChar == sectionIndex) {
+                    return i;
+                }
+
         }
 
         return -1;
@@ -182,19 +201,63 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
     public static class LetterViewHolder extends RecyclerView.ViewHolder {
 
+        TextView despName,firstLetter;
         TextView textViewLetter;
 
         public LetterViewHolder(View itemView) {
             super(itemView);
             textViewLetter = itemView.findViewById(R.id.textview_country);
+            despName = itemView.findViewById(R.id.despName);
+            firstLetter = itemView.findViewById(R.id.firstLetter);
         }
 
         public void bindTo(@NonNull String letter) {
             textViewLetter.setText(letter);
+            despName.setText(letter);
+//            firstLetter.setText(letter.substring(0,1));
         }
     }
 
     public interface RowClickListener {
         void onRowClick(View view, int position);
     }
+
+    // Filter method to filter data in the adapter
+    public void filter(String text) {
+        countries.clear();
+        if (text.isEmpty()) {
+            countries.addAll(orieginalList);
+        } else {
+            Log.e("textttt",text);
+            text = text.toLowerCase();
+            Log.e("size",""+orieginalList.size());
+            int index = 0;
+            for (CountriesRecyclerViewModel item : orieginalList) {
+                Log.e("enter","enter"+index);
+                if (item != null) {
+                    switch (getItemViewType(index++)) {
+                        case TYPE_COUNTRY: {
+                            Country country = item.getCountry();
+                            if (country.getName().toLowerCase().contains(text)) {
+                                Log.e("item",item.getCountry().getName());
+                                countries.add(item);
+                            }
+                            break;
+                        }
+                        case TYPE_LETTER: {
+                            String country = item.getLetter();
+                            if (country.toLowerCase().contains(text)) {
+//                                assert item.getCountry() != null;
+//                                Log.e("item",item.getCountry().getName());
+                                countries.add(item);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 }

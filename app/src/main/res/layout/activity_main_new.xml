@@ -23,6 +23,7 @@
             android:gravity="center">
 
             <TextView
+                android:id="@+id/savedContactTV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
@@ -39,6 +40,7 @@
             android:gravity="center">
 
             <TextView
+                android:id="@+id/bloodGroupTV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
@@ -127,6 +129,7 @@
                 android:paddingVertical="7dp">
 
                 <EditText
+                    android:id="@+id/searchET"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -170,6 +173,17 @@
             app:chosenStyle="bold"
             app:textColor="@android:color/black"
             app:textSize="12sp" />
+        <com.example.myapplication.sectionpicker.BloodGroupSectionPicker
+            android:id="@+id/sectionpicker_bloodGroup"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/l4"
+            app:chosenColor="@android:color/holo_red_dark"
+            app:chosenStyle="bold"
+            app:textColor="@android:color/black"
+            app:textSize="12sp"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/textview_section"

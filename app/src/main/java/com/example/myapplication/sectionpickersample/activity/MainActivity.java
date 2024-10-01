@@ -1,9 +1,16 @@
 package com.example.myapplication.sectionpickersample.activity;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.sectionpicker.BloodGroupSectionPicker;
 import com.example.myapplication.sectionpicker.SectionPicker;
 import com.example.myapplication.sectionpickersample.adapter.CountriesRecyclerViewAdapter;
 import com.example.myapplication.sectionpickersample.model.CountriesRecyclerViewModel;
@@ -37,22 +45,77 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
     private List<CountriesRecyclerViewModel> countriesRecyclerViewModels;
     private RecyclerView recyclerViewCountries;
     private SectionPicker sectionPickerCountries;
+    private BloodGroupSectionPicker sectionpicker_bloodGroup;
     private TextView textViewSection;
     private CountriesRecyclerViewAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
 
+    private TextView savedContactTV,bloodGroupTV;
+    private EditText searchET;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_new);
 
-        textViewSection = (TextView) findViewById(R.id.textview_section);
-        sectionPickerCountries = (SectionPicker) findViewById(R.id.sectionpicker_countries);
-        recyclerViewCountries = (RecyclerView) findViewById(R.id.recyclerview_countries);
+        textViewSection = findViewById(R.id.textview_section);
+        sectionPickerCountries = findViewById(R.id.sectionpicker_countries);
+        sectionpicker_bloodGroup = findViewById(R.id.sectionpicker_bloodGroup);
+        recyclerViewCountries = findViewById(R.id.recyclerview_countries);
+        searchET = findViewById(R.id.searchET);
+
+        savedContactTV = findViewById(R.id.savedContactTV);
+        bloodGroupTV = findViewById(R.id.bloodGroupTV);
 
         setRecyclerViewLayoutManager();
         populateRecyclerView();
         initSectionPicker();
+
+        searchET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.e("text",s.toString());
+                adapter.filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        savedContactTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                savedContactTV.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+                savedContactTV.setTextColor(Color.WHITE);
+                bloodGroupTV.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#DFE1E0")));
+                bloodGroupTV.setTextColor(Color.BLACK);
+                sectionPickerCountries.setVisibility(View.VISIBLE);
+                sectionpicker_bloodGroup.setVisibility(View.GONE);
+                populateRecyclerView();
+                initSectionPicker();
+
+            }
+        });
+
+        bloodGroupTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bloodGroupTV.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+                bloodGroupTV.setTextColor(Color.WHITE);
+                savedContactTV.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#DFE1E0")));
+                savedContactTV.setTextColor(Color.BLACK);
+                sectionPickerCountries.setVisibility(View.GONE);
+                sectionpicker_bloodGroup.setVisibility(View.VISIBLE);
+                populateRecyclerViewByBloodGroup();
+                initBloodGroupSectionPicker();
+            }
+        });
     }
 
     public void setRecyclerViewLayoutManager() {
@@ -62,9 +125,6 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
 
     private void populateRecyclerView() {
         List<Country> countries = new ArrayList<>();
-
-        // TODO DUMMY
-
 
         try {
             String jsonData = readJsonFromAssets("cont.json");
@@ -76,9 +136,10 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                     String name = jsonObject.getString("firstName");
+                    String bloodGroup = jsonObject.getString("bloodGroup");
 
 
-                    countries.add(new Country(name, "TR"));
+                    countries.add(new Country(name, "TR",bloodGroup));
 
                     // Print or process each object as needed
 
@@ -98,8 +159,50 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
             e.printStackTrace();
         }
 
+        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this);
+        recyclerViewCountries.setAdapter(adapter);
+    }
 
-        // TODO DUMMY END
+    private void populateRecyclerViewByBloodGroup() {
+        List<Country> countries = new ArrayList<>();
+
+        try {
+            String jsonData = readJsonFromAssets("cont.json");
+            if (jsonData != null) {
+                JSONArray jsonArray = new JSONArray(jsonData);
+
+                // Loop through the JSON array
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String name = jsonObject.getString("firstName");
+                    String bloodGroup = jsonObject.getString("bloodGroup");
+
+
+                    countries.add(new Country(name, "TR",bloodGroup));
+
+                    // Print or process each object as needed
+
+                }
+
+                Collections.sort(countries, new Comparator<Country>() {
+                    @Override
+                    public int compare(Country p1, Country p2) {
+                        return p1.getName().compareTo(p2.getName());
+                    }
+                });
+                Collections.sort(countries, new Comparator<Country>() {
+                    @Override
+                    public int compare(Country p1, Country p2) {
+                        return p1.getBloodGroup().compareTo(p2.getBloodGroup());
+                    }
+                });
+
+
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
 
         adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this);
         recyclerViewCountries.setAdapter(adapter);
@@ -143,17 +246,36 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
         });
     }
 
+    private void initBloodGroupSectionPicker() {
+//        Object[] sectionsAsObject = adapter.getSections();
+//        String[] sections = Arrays.copyOf(sectionsAsObject, sectionsAsObject.length, String[].class);
+
+        sectionpicker_bloodGroup.setTextViewIndicator(textViewSection);
+//        sectionPickerCountries.setSections(sections);
+        sectionpicker_bloodGroup.setOnTouchingLetterChangedListener(new BloodGroupSectionPicker.OnTouchingLetterChangedListener() {
+            @Override
+            public void onTouchingLetterChanged(String s) {
+                int position = adapter.getPositionForBloodGroupSection(s.charAt(0));
+
+                if (position != -1) {
+                    linearLayoutManager.scrollToPositionWithOffset(position, 0);
+                }
+            }
+        });
+    }
+
     private List<CountriesRecyclerViewModel> transformCountriesForRecyclerView(List<Country> countries) {
         countriesRecyclerViewModels = new ArrayList<>();
         if ((countries != null) && !countries.isEmpty()) {
             String letter = "";
             for (Country country : countries) {
                 String countryLetter = country.getName().substring(0, 1);
+                String bloodGroup = country.getBloodGroup();
                 if (TextUtils.isEmpty(letter) || !letter.equals(countryLetter)) {
-                    countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER));
+                    countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER,bloodGroup));
                     letter = countryLetter;
                 }
-                countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(country, null, CountriesRecyclerViewAdapter.TYPE_COUNTRY));
+                countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(country, null, CountriesRecyclerViewAdapter.TYPE_COUNTRY,bloodGroup));
             }
         }
         return countriesRecyclerViewModels;
