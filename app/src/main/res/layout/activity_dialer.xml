@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Dialed Number Display with Clear Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Dialed Number -->
+        <TextView
+            android:id="@+id/dialedNumberText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Dialed Number"
+            android:textSize="20sp"
+            android:padding="8dp" />
+
+        <!-- Clear Button (X) -->
+        <Button
+            android:id="@+id/button_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⌫"
+            android:textSize="20sp"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- Contact List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/contactRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp" />
+
+    <!-- Dialpad -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rowCount="4"
+        android:columnCount="3"
+        android:padding="10dp">
+
+        <!-- Dialpad Buttons -->
+        <Button android:id="@+id/button_1" android:text="1" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_2" android:text="2 ABC" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_3" android:text="3 DEF" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_4" android:text="4 GHI" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_5" android:text="5 JKL" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_6" android:text="6 MNO" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_7" android:text="7 PQRS" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_8" android:text="8 TUV" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_9" android:text="9 WXYZ" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_star" android:text="*" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_0" android:text="0" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/button_hash" android:text="#" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    </GridLayout>
+
+</LinearLayout>
+
