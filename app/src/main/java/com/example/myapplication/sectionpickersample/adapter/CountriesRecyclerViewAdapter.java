@@ -34,10 +34,13 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
     private final Context context;
     private final RowClickListener rowClickListener;
 
-    public CountriesRecyclerViewAdapter(@NonNull List<CountriesRecyclerViewModel> countries, @NonNull Context context, @NonNull RowClickListener rowClickListener) {
+    int type =0;
+
+    public CountriesRecyclerViewAdapter(@NonNull List<CountriesRecyclerViewModel> countries, @NonNull Context context, @NonNull RowClickListener rowClickListener,int type) {
         this.countries = countries;
         this.context = context;
         this.rowClickListener = rowClickListener;
+        this.type=type;
         orieginalList = new ArrayList<>(countries); // Copy the original list
     }
 
@@ -62,7 +65,7 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 return viewHolder;
             }
             case TYPE_LETTER: {
-                View view = LayoutInflater.from(context).inflate(R.layout.row_recyclerview_country, parent, false);
+                View view = LayoutInflater.from(context).inflate(R.layout.letter_layout, parent, false);
                 return new LetterViewHolder(view);
             }
         }
@@ -83,7 +86,15 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                     break;
                 }
                 case TYPE_LETTER: {
-                    ((LetterViewHolder) holder).bindTo(countriesRecyclerViewModel.getLetter());
+
+                    if(type == 1) {
+                        ((LetterViewHolder) holder).bindTo(countriesRecyclerViewModel.getLetter().substring(0,1));
+                    }
+                    else
+                    {
+                        ((LetterViewHolder) holder).bindTo(countriesRecyclerViewModel.getBloodGroup());
+
+                    }
                     break;
                 }
             }
@@ -133,12 +144,12 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         return -1;
     }
 
-    public int getPositionForBloodGroupSection(int sectionIndex) {
+    public int getPositionForBloodGroupSection(String bloodgroup) {
         for (int i = 0, size = countries.size(); i < size; i++) {
             CountriesRecyclerViewModel countriesRecyclerViewModel = countries.get(i);
                 String sortStr = countriesRecyclerViewModel.getBloodGroup();
                 char firstChar = sortStr.toUpperCase().charAt(0);
-                if (firstChar == sectionIndex) {
+                if (sortStr.equalsIgnoreCase(bloodgroup)) {
                     return i;
                 }
 
@@ -201,20 +212,18 @@ public class CountriesRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
 
     public static class LetterViewHolder extends RecyclerView.ViewHolder {
 
-        TextView despName,firstLetter;
-        TextView textViewLetter;
+        TextView firstLetter;
+
 
         public LetterViewHolder(View itemView) {
             super(itemView);
-            textViewLetter = itemView.findViewById(R.id.textview_country);
-            despName = itemView.findViewById(R.id.despName);
-            firstLetter = itemView.findViewById(R.id.firstLetter);
+
+            firstLetter = itemView.findViewById(R.id.letter_text);
         }
 
         public void bindTo(@NonNull String letter) {
-            textViewLetter.setText(letter);
-            despName.setText(letter);
-//            firstLetter.setText(letter.substring(0,1));
+
+            firstLetter.setText(letter);
         }
     }
 

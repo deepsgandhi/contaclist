@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
 
     private TextView savedContactTV,bloodGroupTV;
     private EditText searchET;
+
+    public String[] sections = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "NA"};
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
                 Collections.sort(countries, new Comparator<Country>() {
                     @Override
                     public int compare(Country p1, Country p2) {
-                        return p1.getName().compareTo(p2.getName());
+                        return p1.getName().compareToIgnoreCase(p2.getName());
                     }
                 });
 
@@ -159,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
             e.printStackTrace();
         }
 
-        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this);
+        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this,1);
         recyclerViewCountries.setAdapter(adapter);
     }
 
@@ -185,12 +189,7 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
 
                 }
 
-                Collections.sort(countries, new Comparator<Country>() {
-                    @Override
-                    public int compare(Country p1, Country p2) {
-                        return p1.getName().compareTo(p2.getName());
-                    }
-                });
+
                 Collections.sort(countries, new Comparator<Country>() {
                     @Override
                     public int compare(Country p1, Country p2) {
@@ -199,12 +198,14 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
                 });
 
 
+
+
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
 
-        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), this, this);
+        adapter = new CountriesRecyclerViewAdapter(transformBloodGroupForRecyclerView(countries), this, this,2);
         recyclerViewCountries.setAdapter(adapter);
     }
 
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
         sectionpicker_bloodGroup.setOnTouchingLetterChangedListener(new BloodGroupSectionPicker.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {
-                int position = adapter.getPositionForBloodGroupSection(s.charAt(0));
+                int position = adapter.getPositionForBloodGroupSection(s);
 
                 if (position != -1) {
                     linearLayoutManager.scrollToPositionWithOffset(position, 0);
@@ -271,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
             for (Country country : countries) {
                 String countryLetter = country.getName().substring(0, 1);
                 String bloodGroup = country.getBloodGroup();
-                if (TextUtils.isEmpty(letter) || !letter.equals(countryLetter)) {
+                if (TextUtils.isEmpty(letter) || !letter.equalsIgnoreCase(countryLetter)) {
                     countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER,bloodGroup));
                     letter = countryLetter;
                 }
@@ -280,6 +281,27 @@ public class MainActivity extends AppCompatActivity implements CountriesRecycler
         }
         return countriesRecyclerViewModels;
     }
+
+
+
+    private List<CountriesRecyclerViewModel> transformBloodGroupForRecyclerView(List<Country> countries) {
+        countriesRecyclerViewModels = new ArrayList<>();
+        if ((countries != null) && !countries.isEmpty()) {
+            String letter = "";
+            for (Country country : countries) {
+                String countryLetter = country.getName().substring(0, 1);
+                String bloodGroup = country.getBloodGroup();
+                if (TextUtils.isEmpty(letter) || !letter.equalsIgnoreCase(bloodGroup)) {
+                    countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER,bloodGroup));
+                    letter = bloodGroup;
+                }
+                countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(country, null, CountriesRecyclerViewAdapter.TYPE_COUNTRY,bloodGroup));
+            }
+        }
+        return countriesRecyclerViewModels;
+    }
+
+
 
     @Override
     public void onRowClick(View view, int position) {

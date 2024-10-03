@@ -45,9 +45,6 @@ public class CountriesFragment extends Fragment implements CountriesRecyclerView
     private CountriesRecyclerViewAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
 
-
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -83,7 +80,7 @@ public class CountriesFragment extends Fragment implements CountriesRecyclerView
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     String name = jsonObject.getString("firstName");
-                    countries.add(new Country(name, "TR"));
+                 //   countries.add(new Country(name, "TR"));
                 }
 
                 Collections.sort(countries, new Comparator<Country>() {
@@ -97,7 +94,7 @@ public class CountriesFragment extends Fragment implements CountriesRecyclerView
             e.printStackTrace();
         }
 
-        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), getContext(), this);
+        adapter = new CountriesRecyclerViewAdapter(transformCountriesForRecyclerView(countries), getContext(), this,1);
         recyclerViewCountries.setAdapter(adapter);
     }
 
@@ -143,10 +140,10 @@ public class CountriesFragment extends Fragment implements CountriesRecyclerView
             for (Country country : countries) {
                 String countryLetter = country.getName().substring(0, 1);
                 if (TextUtils.isEmpty(letter) || !letter.equals(countryLetter)) {
-                    countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER));
+                   // countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(null, countryLetter, CountriesRecyclerViewAdapter.TYPE_LETTER));
                     letter = countryLetter;
                 }
-                countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(country, null, CountriesRecyclerViewAdapter.TYPE_COUNTRY));
+                //countriesRecyclerViewModels.add(new CountriesRecyclerViewModel(country, null, CountriesRecyclerViewAdapter.TYPE_COUNTRY));
             }
         }
         return countriesRecyclerViewModels;

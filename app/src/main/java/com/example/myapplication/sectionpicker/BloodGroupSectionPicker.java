@@ -16,7 +16,7 @@ import com.example.myapplication.sectionpicker.helper.AttrHelper;
 
 public class BloodGroupSectionPicker extends View {
 
-    public String[] sections = {"#","A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "NA"};
+    public String[] sections = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "NA"};
     private TextView textViewIndicator;
     private int fontSize;
     private ColorStateList color;
