@@ -11,11 +11,13 @@ public class CountriesRecyclerViewModel {
     private Country country;
     private String letter;
     private int type;
+    private String bloodGroup;
 
-    public CountriesRecyclerViewModel(@Nullable Country country, String letter, int type) {
+    public CountriesRecyclerViewModel(@Nullable Country country, String letter, int type,String bloodGroup) {
         this.country = country;
         this.letter = letter;
         this.type = type;
+        this.bloodGroup = bloodGroup;
     }
 
     @Nullable
@@ -29,5 +31,9 @@ public class CountriesRecyclerViewModel {
 
     public int getType() {
         return type;
+    }
+
+    public String getBloodGroup() {
+        return bloodGroup;
     }
 }

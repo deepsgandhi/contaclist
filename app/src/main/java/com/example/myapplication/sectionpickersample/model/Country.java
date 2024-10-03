@@ -10,10 +10,12 @@ import android.os.Parcelable;
 public class Country implements Parcelable {
     private String name;
     private String countryCode;
+    private String bloodGroup;
 
-    public Country(String name, String countryCode) {
+    public Country(String name, String countryCode,String bloodGroup) {
         this.name = name;
         this.countryCode = countryCode;
+        this.bloodGroup = bloodGroup;
     }
 
     public String getName() {
@@ -31,6 +33,15 @@ public class Country implements Parcelable {
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
     }
+
+    public String getBloodGroup() {
+        return bloodGroup;
+    }
+
+    public void setBloodGroup(String bloodGroup) {
+        this.bloodGroup = bloodGroup;
+    }
+
 
 
     @Override
