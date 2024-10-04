@@ -68,6 +68,7 @@
 
             <TextView
                 android:layout_width="match_parent"
+                android:id="@+id/GroupTV"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
                 android:background="@drawable/circular_corner_item"
@@ -176,6 +177,18 @@
         <com.example.myapplication.sectionpicker.BloodGroupSectionPicker
             android:id="@+id/sectionpicker_bloodGroup"
             android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/l4"
+            app:chosenColor="@android:color/holo_red_dark"
+            app:chosenStyle="bold"
+            app:textColor="@android:color/black"
+            app:textSize="12sp"
+            android:visibility="gone"/>
+
+        <com.example.myapplication.sectionpicker.GroupSectionPicker
+            android:id="@+id/sectionpicker_Group"
+            android:layout_width="52dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_below="@id/l4"
