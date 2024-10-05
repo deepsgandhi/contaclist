@@ -1,11 +1,17 @@
 package com.example.myapplication.sectionpickersample.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,9 +36,14 @@ public class DialerActivity extends AppCompatActivity {
     private RecyclerView contactRecyclerView;
     private ContactAdapter contactAdapter;
     private List<Contact> contactList = new ArrayList<>();
+    List<Contact> filteredList = new ArrayList<>();
     private StringBuilder dialedNumber = new StringBuilder();
     private Map<Character, String> t9Map = new HashMap<>();
-    private TextView dialedNumberText;
+    private TextView dialedNumberText, nameTV, mobileTV;
+    private LinearLayout topLL, bottomLL, keypadLL, nameLL;
+    private ImageView clearIV;
+
+    int selectedPos = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +53,21 @@ public class DialerActivity extends AppCompatActivity {
         // Initialize T9 Mapping
         initializeT9Map();
 
+        topLL = findViewById(R.id.topLL);
+        bottomLL = findViewById(R.id.bottomLL);
+
+        keypadLL = findViewById(R.id.keypadLL);
+        nameLL = findViewById(R.id.nameLL);
+
+        clearIV = findViewById(R.id.clearIV);
+        nameTV = findViewById(R.id.nameTV);
+        mobileTV = findViewById(R.id.mobileTV);
+
         // Initialize UI elements
         contactRecyclerView = findViewById(R.id.contactRecyclerView);
-        contactRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+//        contactRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        NoScrollLinearLayoutManager layoutManager = new NoScrollLinearLayoutManager(this);
+        contactRecyclerView.setLayoutManager(layoutManager);
         contactAdapter = new ContactAdapter(contactList);
         contactRecyclerView.setAdapter(contactAdapter);
 
@@ -58,7 +80,7 @@ public class DialerActivity extends AppCompatActivity {
         setDialpadListeners();
 
         // Set clear button listener for single-press and long-press actions
-        Button clearButton = findViewById(R.id.button_clear);
+        ImageView clearButton = findViewById(R.id.button_clear);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,6 +95,80 @@ public class DialerActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        topLL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (filteredList.isEmpty()) {
+                    if (selectedPos > 0) {
+                        contactAdapter.setSelectedPosition(--selectedPos);
+                        contactRecyclerView.scrollToPosition(selectedPos);
+                    }
+                    nameTV.setText(contactList.get(selectedPos).getName());
+                    mobileTV.setText(contactList.get(selectedPos).getPhoneNumber());
+                } else {
+                    if (selectedPos > 0) {
+                        contactAdapter.setSelectedPosition(--selectedPos);
+                        contactRecyclerView.scrollToPosition(selectedPos);
+                        nameTV.setText(filteredList.get(selectedPos).getName());
+                        mobileTV.setText(filteredList.get(selectedPos).getPhoneNumber());
+                    }
+
+                }
+
+
+            }
+        });
+
+        bottomLL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                keypadLL.setVisibility(View.GONE);
+                nameLL.setVisibility(View.VISIBLE);
+                if (filteredList.isEmpty()) {
+                    Log.e("sizeeee", "" + contactList.size());
+                    Log.e("selectedPos", "" + selectedPos);
+                    Log.e("sizeeee-1", "" + (contactList.size() - 1));
+                    if (selectedPos < contactList.size() - 1) {
+                        contactAdapter.setSelectedPosition(++selectedPos);
+                        contactRecyclerView.scrollToPosition(selectedPos);
+                    }
+                    nameTV.setText(contactList.get(selectedPos).getName());
+                    mobileTV.setText(contactList.get(selectedPos).getPhoneNumber());
+                } else {
+                    Log.e("sizeeee", "" + filteredList.size());
+                    Log.e("selectedPos", "" + selectedPos);
+                    Log.e("sizeeee-1", "" + (filteredList.size() - 1));
+                    if (selectedPos < filteredList.size() - 1) {
+                        contactAdapter.setSelectedPosition(++selectedPos);
+                        contactRecyclerView.scrollToPosition(selectedPos);
+                    }
+                    nameTV.setText(filteredList.get(selectedPos).getName());
+                    mobileTV.setText(filteredList.get(selectedPos).getPhoneNumber());
+                }
+
+
+            }
+        });
+
+
+        clearIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                keypadLL.setVisibility(View.VISIBLE);
+                nameLL.setVisibility(View.GONE);
+            }
+        });
+
+        // Set the click listener for the adapter
+        contactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String item) {
+                dialedNumberText.setText(item);
+            }
+        });
+
     }
 
     private void initializeT9Map() {
@@ -107,7 +203,12 @@ public class DialerActivity extends AppCompatActivity {
                     // Create a new contact and add to the list
                     contactList.add(new Contact(fullName, phoneNumber));
                 }
-                contactAdapter.notifyDataSetChanged();
+
+                contactAdapter = new ContactAdapter(contactList);
+                contactRecyclerView.setAdapter(contactAdapter);
+
+//                contactAdapter.notifyDataSetChanged();
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -131,7 +232,7 @@ public class DialerActivity extends AppCompatActivity {
     }
 
     private void setDialpadListeners() {
-        Button[] dialButtons = {
+        LinearLayout[] dialButtons = {
                 findViewById(R.id.button_1), findViewById(R.id.button_2),
                 findViewById(R.id.button_3), findViewById(R.id.button_4),
                 findViewById(R.id.button_5), findViewById(R.id.button_6),
@@ -139,12 +240,15 @@ public class DialerActivity extends AppCompatActivity {
                 findViewById(R.id.button_9), findViewById(R.id.button_0)
         };
 
-        for (Button button : dialButtons) {
+        for (LinearLayout button : dialButtons) {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    selectedPos = -1;
+                    contactAdapter.setSelectedPosition(-1);
                     // Only add the digit to the dialed number (ignore alphabets)
-                    String numberPressed = ((Button) v).getText().toString().substring(0, 1);
+                    TextView tt = (TextView) button.getChildAt(0);
+                    String numberPressed = tt.getText().toString();
                     dialedNumber.append(numberPressed);
                     updateDialedNumberDisplay();
                     filterContactsByDialedNumber();
@@ -178,7 +282,7 @@ public class DialerActivity extends AppCompatActivity {
             return;
         }
 
-        List<Contact> filteredList = new ArrayList<>();
+        filteredList = new ArrayList<>();
         for (Contact contact : contactList) {
             if (contact.getPhoneNumber().contains(dialString)) {
                 filteredList.add(contact);
@@ -205,4 +309,24 @@ public class DialerActivity extends AppCompatActivity {
         }
         return true;  // Name matches the T9 input
     }
+
+    public class NoScrollLinearLayoutManager extends LinearLayoutManager {
+
+        public NoScrollLinearLayoutManager(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean canScrollVertically() {
+            // Returning false disables vertical scrolling
+            return false;
+        }
+
+        @Override
+        public boolean canScrollHorizontally() {
+            // If you want to disable horizontal scrolling, return false here
+            return false;
+        }
+    }
+
 }

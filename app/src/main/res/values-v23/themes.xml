@@ -6,4 +6,9 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
     </style>
+
+    <style name="Button.White" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">@android:color/white</item>
+        <item name="background">@drawable/circular_corner_button</item>
+    </style>
 </resources>
