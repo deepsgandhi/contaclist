@@ -1,9 +1,13 @@
 package com.example.myapplication.sectionpickersample.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +36,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import android.provider.CallLog;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 
 public class DialerActivity extends AppCompatActivity {
 
@@ -72,6 +83,18 @@ public class DialerActivity extends AppCompatActivity {
         contactRecyclerView.setAdapter(contactAdapter);
 
         dialedNumberText = findViewById(R.id.dialedNumberText);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALL_LOG}, 1);
+        } else {
+            getCallDetails();
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+        }
+
 
         // Load contacts from JSON
         loadContactsFromJson();
@@ -310,7 +333,109 @@ public class DialerActivity extends AppCompatActivity {
         return true;  // Name matches the T9 input
     }
 
-    public class NoScrollLinearLayoutManager extends LinearLayoutManager {
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("CallLog", "Permission accept to read call logs");
+                // Permission granted
+                getCallDetails();
+            } else {
+                // Permission denied
+                Log.d("CallLog", "Permission denied to read call logs");
+            }
+        }
+    }
+
+    public void getCallDetails() {
+        Uri callLogUri = CallLog.Calls.CONTENT_URI;
+
+        // The columns to retrieve
+        String[] projection = new String[]{
+                CallLog.Calls.NUMBER,        // Phone number
+                CallLog.Calls.TYPE,          // Type of call (Incoming, Outgoing, Missed)
+                CallLog.Calls.DATE,          // Date of the call
+                CallLog.Calls.DURATION,       // Call duration
+                CallLog.Calls.PHONE_ACCOUNT_ID  // SIM information column
+        };
+
+        Cursor cursor = getContentResolver().query(callLogUri, projection, null, null, CallLog.Calls.DATE + " DESC");
+
+        Log.e("enter", "before enter");
+        if (cursor != null) {
+            Log.e("enter", "enter");
+            while (cursor.moveToNext()) {
+                String phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));
+                String callType = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE));
+                String callDate = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE));
+                String callDuration = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION));
+                String phoneAccountId = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.PHONE_ACCOUNT_ID));
+
+
+                // Convert the call type (1: Incoming, 2: Outgoing, 3: Missed)
+                int callTypeCode = Integer.parseInt(callType);
+                String callTypeStr = "";
+                switch (callTypeCode) {
+                    case CallLog.Calls.INCOMING_TYPE:
+                        callTypeStr = "Incoming";
+                        break;
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        callTypeStr = "Outgoing";
+                        break;
+                    case CallLog.Calls.MISSED_TYPE:
+                        callTypeStr = "Missed";
+                        break;
+                }
+                getSimSlotFromIccid(this,phoneAccountId);
+
+                // Log the details (you can also store or display this information)
+                Log.d("CallLog", "Number: " + phoneNumber + ", Type: " + callTypeStr +
+                        ", Date: " + callDate + ", Duration: " + callDuration + " seconds" + ", SIM TYPE :" + phoneAccountId);
+            }
+            cursor.close();
+        }
+    }
+
+    public void getSimSlotFromIccid(Context context, String targetIccid) {
+        // Get the Subscription Manager and List of SIM cards (dual-SIM support)
+        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+
+        // List of subscriptions (SIM information)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+
+        if (subscriptionInfoList != null) {
+            // Loop through SIM slots
+            for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
+                int simSlotIndex = subscriptionInfo.getSimSlotIndex();  // SIM slot index (0 = SIM1, 1 = SIM2)
+                String iccid = subscriptionInfo.getIccId();             // Get ICCID of the SIM
+
+                // Compare ICCID with the target ICCID
+                if (iccid != null && iccid.equals(targetIccid)) {
+                    if (simSlotIndex == 0) {
+                        Log.d("SIM Info", "The ICCID " + targetIccid + " belongs to SIM 1 (Slot 0)");
+                    } else if (simSlotIndex == 1) {
+                        Log.d("SIM Info", "The ICCID " + targetIccid + " belongs to SIM 2 (Slot 1)");
+                    }
+                }
+            }
+        } else {
+            Log.d("SIM Info", "No SIM cards detected.");
+        }
+    }
+
+        public class NoScrollLinearLayoutManager extends LinearLayoutManager {
 
         public NoScrollLinearLayoutManager(Context context) {
             super(context);
